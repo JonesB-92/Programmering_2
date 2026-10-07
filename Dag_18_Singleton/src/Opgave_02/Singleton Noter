@@ -1,0 +1,83 @@
+🧩 What a Singleton is
+It’s a design pattern that ensures:
+
+-There’s only one instance of a class, ever.
+-Everyone who needs it gets a reference to that same instance.
+
+You can think of it like:
+“One counter that all parts of the app share.”
+
+💭 How it usually works
+Three core steps — you’ll recognize these when you go back to your code:
+
+1. Private constructor
+→ so no one can create new instances with new Counter()
+
+2. Private static variable holding “the one instance”
+→ this is the actual singleton
+
+3. Public static method (often called getInstance())
+→ gives you access to that one shared instance
+
+🔄 Applied to your situation
+
+In your code, you currently create a Counter by doing new Counter().
+But that means multiple counters could exist, each with its own value.
+
+The singleton pattern fixes that so everyone shares the same value.
+That’s especially useful for something like a counter — imagine a global score, total clicks, or ID generator.
+
+-------------------
+Hvorfor ikke bare static feltvariabel?
+⚠️ Problem 2: Bad design / mixed responsibilities
+If you just use a static field, the class is half object, half global utility.
+It becomes confusing — is Counter meant to be instantiated or not?
+
+A Singleton is more intentional:
+you’re clearly saying “only one of these can ever exist.” It communicates purpose and avoids misuse.
+
+A Singleton’s getInstance() method lets you:
+Create the object lazily (only when first needed), or even swap it out for a mock (for testing).
+So it gives you more flexibility and safety.
+
+Så basically kommunikation til medudviklere ift. hvad klassen er og indebærer, færre risici for fejl og færre random objekter,
+der flyder rundt i memory.
+
+Med static counter feltvariabel uden instantiering af objektet:
+----------------------------------------------------------------------------------
+You can’t later subclass or extend Counter’s behavior:
+-----------------------------------------------------
+public class FancyCounter extends Counter {
+    public static void resetToTen() {
+        value = 10;
+    }
+}
+Then FancyCounter.value is actually a completely separate static variable from Counter.value
+(Java’s static members are bound to the class, not inherited per instance).
+So Counter.value and FancyCounter.value would drift apart → not shared.
+✅ With a Singleton object, subclasses could inherit and override instance methods,
+because there’s a real object with runtime polymorphism.
+-----------------------------------------------------
+You can’t implement interfaces like Comparable or Serializable:
+-----------------------------------------------------
+If everything’s static, there’s no instance to serialize or compare.
+Static data isn’t serialized by default. Only objects are.
+So again: the Singleton pattern gives you the object identity that interfaces expect.
+So the Singleton pattern’s purpose is:
+→ Give you one shared instance, but still keep it an object with real OOP behavior.
+-----------------------------------------------------
+You can’t pass Counter as an object to a method, because it’s not an instance.
+-----------------------------------------------------
+You can’t encapsulate how value changes (other classes could just say Counter.value = 9999; directly).
+-----------------------------------------------------
+
+✅ Exactly the point of a singleton:
+The first time the program loads the Counter class, a single Counter object is created and stored in the static field instance.
+Every time you later call Counter.getInstance(), you don’t make a new object — you just get a reference to that same one.
+
+🧠 Why this distinction matters
+For a simple case like your Counter, it makes no real difference — both behave identically after creation.
+But for larger systems, if that singleton does something expensive (like connect to a database or load a huge file),
+eager creation would waste resources if it’s never actually used.
+That’s why “lazy” creation can be more memory- or performance-efficient.
+
